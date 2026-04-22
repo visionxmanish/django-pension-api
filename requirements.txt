@@ -12,3 +12,4 @@ pillow
 pillow_heif
 requests
 numpy
+drf-spectacular
