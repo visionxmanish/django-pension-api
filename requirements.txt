@@ -1,0 +1,14 @@
+django>=4.2
+djangorestframework
+django-cors-headers
+deepface
+opencv-python
+opencv-contrib-python
+tf-keras
+torch
+retina-face
+pillow-heif
+pillow
+pillow_heif
+requests
+numpy
