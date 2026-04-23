@@ -1,4 +1,4 @@
-from django.urls import path, re_path
+from django.urls import path
 from .views import (
     RegisterUserView, 
     VerifyUserView, 
@@ -8,17 +8,47 @@ from .views import (
     DashboardDataView,
     RegisterNomineeView,
     VerifyNomineeLivenessView,
-    MarkUserDeceasedView
+    MarkUserDeceasedView,
+    EditNomineeView,
+    DeleteNomineeView,
+    AdminNomineeListCreateView,
+    AdminNomineeDetailView,
+    AdminUserNomineeListView,
+    ParentNomineeListView,
+    AdminNomineeDetailByParentAndIdView,
+    AdminVerificationListView,
+    AdminNomineeVerificationListView,
+    HealthView,
+    MetaView,
 )
 
 urlpatterns = [
-    re_path(r'^register/?$', RegisterUserView.as_view(), name='register'),
-    re_path(r'^verify/?$', VerifyUserView.as_view(), name='verify'),
-    re_path(r'^verify_liveness_video/?$', VerifyLivenessVideoView.as_view(), name='verify_liveness_video'),
-    re_path(r'^register-nominee/?$', RegisterNomineeView.as_view(), name='register-nominee'),
-    re_path(r'^verify-nominee-liveness/?$', VerifyNomineeLivenessView.as_view(), name='verify-nominee-liveness'),
-    re_path(r'^mark-deceased/?$', MarkUserDeceasedView.as_view(), name='mark-deceased'),
-    re_path(r'^api-admin/users/?$', UserListView.as_view(), name='user-list'),
-    re_path(r'^api-admin/users/(?P<pension_id>[^/]+)/?$', UserDetailView.as_view(), name='user-detail'),
-    re_path(r'^api-admin/dashboard/?$', DashboardDataView.as_view(), name='dashboard-data'),
+    # User Registration & Verification
+    path('register/', RegisterUserView.as_view(), name='register'),
+    path('verify/', VerifyUserView.as_view(), name='verify'),
+    path('verify-liveness-video/', VerifyLivenessVideoView.as_view(), name='verify_liveness_video'),
+
+    # Nominee Management
+    path('nominee/register/', RegisterNomineeView.as_view(), name='register_nominee'),
+    path('nominee/edit/', EditNomineeView.as_view(), name='edit_nominee'),
+    path('nominee/delete/', DeleteNomineeView.as_view(), name='delete_nominee'),
+    path('nominee/verify-liveness/', VerifyNomineeLivenessView.as_view(), name='verify_nominee_liveness'),
+    path('nominee/parent/<str:pension_id>/', ParentNomineeListView.as_view(), name='nominee_list_by_parent'),
+
+    # User Status
+    path('mark-deceased/', MarkUserDeceasedView.as_view(), name='mark_deceased'),
+
+    # Admin APIs
+    path('api-admin/users/', UserListView.as_view(), name='user_list'),
+    path('api-admin/users/<str:pension_id>/', UserDetailView.as_view(), name='user_detail'),
+    path('api-admin/users/<str:pension_id>/nominees/', AdminUserNomineeListView.as_view(), name='admin_user_nominees'),
+    path('api-admin/parents/<str:pension_id>/nominees/', ParentNomineeListView.as_view(), name='admin_parent_nominee_list'),
+    path('api-admin/nominees/', AdminNomineeListCreateView.as_view(), name='admin_nominee_list_create'),
+    path('api-admin/nominees/<str:pension_id>/<str:nominee_id>/', AdminNomineeDetailByParentAndIdView.as_view(), name='admin_nominee_detail_by_parent_id'),
+    path('api-admin/nominees/<str:nominee_pension_id>/', AdminNomineeDetailView.as_view(), name='admin_nominee_detail'),
+    path('api-admin/verifications/', AdminVerificationListView.as_view(), name='admin_verifications'),
+    path('api-admin/nominee-verifications/', AdminNomineeVerificationListView.as_view(), name='admin_nominee_verifications'),
+    path('api-admin/health/', HealthView.as_view(), name='admin_health'),
+    path('api-admin/meta/', MetaView.as_view(), name='admin_meta'),
+    path('api-admin/dashboard/', DashboardDataView.as_view(), name='dashboard_data'),
 ]

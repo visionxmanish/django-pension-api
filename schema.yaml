@@ -1,0 +1,1303 @@
+openapi: 3.0.3
+info:
+  title: Pension Face Recognition API
+  version: 1.0.0
+  description: API for face registration, verification, and liveness detection.
+paths:
+  /api-admin/dashboard/:
+    get:
+      operationId: api_admin_dashboard_retrieve
+      description: Aggregated enrollment and verification metrics for admin dashboard
+        cards.
+      summary: Dashboard statistics
+      tags:
+      - Admin Dashboard
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DashboardResponse'
+          description: ''
+  /api-admin/health/:
+    get:
+      operationId: api_admin_health_retrieve
+      description: Simple health endpoint for uptime checks.
+      summary: Health check
+      tags:
+      - System
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+          description: ''
+  /api-admin/meta/:
+    get:
+      operationId: api_admin_meta_retrieve
+      description: Returns environment and discoverability metadata such as schema/docs
+        paths.
+      summary: API metadata
+      tags:
+      - System
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MetaResponse'
+          description: ''
+  /api-admin/nominee-verifications/:
+    get:
+      operationId: api_admin_nominee_verifications_list
+      description: Get paginated verification records for nominees.
+      summary: List nominee verifications
+      parameters:
+      - in: query
+        name: nominee_pension_id
+        schema:
+          type: string
+        description: Filter by nominee pension ID
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - in: query
+        name: pension_id
+        schema:
+          type: string
+        description: Filter by parent pension ID
+      - in: query
+        name: q
+        schema:
+          type: string
+        description: Search nominee ID or nominee name
+      - in: query
+        name: status
+        schema:
+          type: string
+        description: success or failure
+      tags:
+      - Admin Verifications
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedNomineeVerificationList'
+          description: ''
+  /api-admin/nominees/:
+    get:
+      operationId: api_admin_nominees_list
+      description: Get paginated nominees. Supports filtering by search text, parent
+        pension ID, and active status.
+      summary: List nominees (admin)
+      parameters:
+      - in: query
+        name: is_active
+        schema:
+          type: string
+        description: 'Filter active nominees: true/false'
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - in: query
+        name: pension_id
+        schema:
+          type: string
+        description: Filter by parent pensioner ID
+      - in: query
+        name: q
+        schema:
+          type: string
+        description: Search nominee pension ID or nominee name
+      tags:
+      - Admin Nominees
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedNomineeResponseList'
+          description: ''
+    post:
+      operationId: api_admin_nominees_create
+      description: Create a nominee for a parent pensioner using pension_id. Optionally
+        include face image file.
+      summary: Create nominee (admin)
+      tags:
+      - Admin Nominees
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NomineeResponse'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/NomineeResponse'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/NomineeResponse'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NomineeResponse'
+          description: ''
+  /api-admin/nominees/{nominee_pension_id}/:
+    get:
+      operationId: api_admin_nominees_retrieve
+      summary: Get nominee by nominee ID
+      parameters:
+      - in: path
+        name: nominee_pension_id
+        schema:
+          type: string
+        required: true
+      tags:
+      - Admin Nominees
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NomineeResponse'
+          description: ''
+    put:
+      operationId: api_admin_nominees_update
+      summary: Replace nominee data
+      parameters:
+      - in: path
+        name: nominee_pension_id
+        schema:
+          type: string
+        required: true
+      tags:
+      - Admin Nominees
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AdminNomineeCreateUpdate'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AdminNomineeCreateUpdate'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminNomineeCreateUpdate'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NomineeResponse'
+          description: ''
+    patch:
+      operationId: api_admin_nominees_partial_update
+      summary: Partially update nominee
+      parameters:
+      - in: path
+        name: nominee_pension_id
+        schema:
+          type: string
+        required: true
+      tags:
+      - Admin Nominees
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedAdminNomineeCreateUpdate'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedAdminNomineeCreateUpdate'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedAdminNomineeCreateUpdate'
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NomineeResponse'
+          description: ''
+    delete:
+      operationId: api_admin_nominees_destroy
+      summary: Delete nominee
+      parameters:
+      - in: path
+        name: nominee_pension_id
+        schema:
+          type: string
+        required: true
+      tags:
+      - Admin Nominees
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '204':
+          description: No response body
+  /api-admin/parents/{pension_id}/nominees/:
+    get:
+      operationId: api_admin_parents_nominees_retrieve
+      description: Returns the parent pensioner details and the full nominee list
+        registered under that parent.
+      summary: Get nominees by parent pension ID
+      parameters:
+      - in: path
+        name: pension_id
+        schema:
+          type: string
+        required: true
+      tags:
+      - Nominee
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ParentNomineeListResponse'
+          description: ''
+  /api-admin/users/:
+    get:
+      operationId: api_admin_users_list
+      description: Get paginated users with optional filters by search text, active
+        status, and deceased status.
+      summary: List users (admin)
+      parameters:
+      - in: query
+        name: is_active
+        schema:
+          type: string
+        description: 'Filter active users: true/false'
+      - in: query
+        name: is_deceased
+        schema:
+          type: string
+        description: 'Filter deceased users: true/false'
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - in: query
+        name: q
+        schema:
+          type: string
+        description: Search by pension ID or user name
+      tags:
+      - Admin Users
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedUserList'
+          description: ''
+    post:
+      operationId: api_admin_users_create
+      description: Create a new pension user. Optional face file can be uploaded during
+        creation.
+      summary: Create user (admin)
+      tags:
+      - Admin Users
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/User'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/User'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+  /api-admin/users/{pension_id}/:
+    get:
+      operationId: api_admin_users_retrieve
+      description: |-
+        Admin user detail/update endpoint.
+
+        Supports PATCH/PUT with optional `file` (new face photo) which replaces stored encodings.
+      summary: Get user detail by pension ID
+      parameters:
+      - in: path
+        name: pension_id
+        schema:
+          type: string
+        required: true
+      tags:
+      - Admin Users
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+    put:
+      operationId: api_admin_users_update
+      description: |-
+        Admin user detail/update endpoint.
+
+        Supports PATCH/PUT with optional `file` (new face photo) which replaces stored encodings.
+      summary: Replace user data
+      parameters:
+      - in: path
+        name: pension_id
+        schema:
+          type: string
+        required: true
+      tags:
+      - Admin Users
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/UserAdminUpdate'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UserAdminUpdate'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserAdminUpdate'
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+    patch:
+      operationId: api_admin_users_partial_update
+      description: |-
+        Admin user detail/update endpoint.
+
+        Supports PATCH/PUT with optional `file` (new face photo) which replaces stored encodings.
+      summary: Partially update user
+      parameters:
+      - in: path
+        name: pension_id
+        schema:
+          type: string
+        required: true
+      tags:
+      - Admin Users
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedUserAdminUpdate'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedUserAdminUpdate'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedUserAdminUpdate'
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+    delete:
+      operationId: api_admin_users_destroy
+      description: |-
+        Admin user detail/update endpoint.
+
+        Supports PATCH/PUT with optional `file` (new face photo) which replaces stored encodings.
+      summary: Delete user by pension ID
+      parameters:
+      - in: path
+        name: pension_id
+        schema:
+          type: string
+        required: true
+      tags:
+      - Admin Users
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '204':
+          description: No response body
+  /api-admin/users/{pension_id}/nominees/:
+    get:
+      operationId: api_admin_users_nominees_list
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - in: path
+        name: pension_id
+        schema:
+          type: string
+        required: true
+      tags:
+      - api-admin
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedNomineeResponseList'
+          description: ''
+  /api-admin/verifications/:
+    get:
+      operationId: api_admin_verifications_list
+      description: Get paginated verification records for pension users.
+      summary: List pensioner verifications
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - in: query
+        name: pension_id
+        schema:
+          type: string
+        description: Filter by pension ID
+      - in: query
+        name: q
+        schema:
+          type: string
+        description: Search pension ID or user name
+      - in: query
+        name: status
+        schema:
+          type: string
+        description: success or failure
+      tags:
+      - Admin Verifications
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedVerificationList'
+          description: ''
+  /mark-deceased/:
+    post:
+      operationId: mark_deceased_create
+      tags:
+      - Pensioner Status
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MarkDeceasedInput'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/MarkDeceasedInput'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/MarkDeceasedInput'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+          description: ''
+  /nominee/delete/:
+    post:
+      operationId: nominee_delete_create
+      tags:
+      - Nominee
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeleteNomineeInput'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/DeleteNomineeInput'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/DeleteNomineeInput'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  detail:
+                    type: string
+          description: ''
+  /nominee/edit/:
+    post:
+      operationId: nominee_edit_create
+      tags:
+      - Nominee
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                nominee_pension_id:
+                  type: string
+                name:
+                  type: string
+                relation:
+                  type: string
+                file:
+                  type: string
+                  format: binary
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NomineeResponse'
+          description: ''
+  /nominee/parent/{pension_id}/:
+    get:
+      operationId: nominee_parent_retrieve
+      description: Returns the parent pensioner details and the full nominee list
+        registered under that parent.
+      summary: Get nominees by parent pension ID
+      parameters:
+      - in: path
+        name: pension_id
+        schema:
+          type: string
+        required: true
+      tags:
+      - Nominee
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ParentNomineeListResponse'
+          description: ''
+  /nominee/register/:
+    post:
+      operationId: nominee_register_create
+      tags:
+      - Nominee
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                pension_id:
+                  type: string
+                  description: Pensioner ID
+                nominee_pension_id:
+                  type: string
+                name:
+                  type: string
+                relation:
+                  type: string
+                file:
+                  type: string
+                  format: binary
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NomineeResponse'
+          description: ''
+  /nominee/verify-liveness/:
+    post:
+      operationId: nominee_verify_liveness_create
+      tags:
+      - Nominee
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                nominee_pension_id:
+                  type: string
+                verification_type:
+                  type: string
+                file:
+                  type: string
+                  format: binary
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VerificationResponse'
+          description: ''
+  /register/:
+    post:
+      operationId: register_create
+      tags:
+      - register
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                pension_id:
+                  type: string
+                name:
+                  type: string
+                file:
+                  type: string
+                  format: binary
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+          description: ''
+  /verify/:
+    post:
+      operationId: verify_create
+      tags:
+      - verify
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                pension_id:
+                  type: string
+                file:
+                  type: string
+                  format: binary
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VerificationResponse'
+          description: ''
+  /verify-liveness-video/:
+    post:
+      operationId: verify_liveness_video_create
+      tags:
+      - verify-liveness-video
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                pension_id:
+                  type: string
+                verification_type:
+                  type: string
+                file:
+                  type: string
+                  format: binary
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VerificationResponse'
+          description: ''
+components:
+  schemas:
+    AdminNomineeCreateUpdate:
+      type: object
+      properties:
+        pension_id:
+          type: string
+          description: Pensioner's ID
+          maxLength: 255
+        nominee_pension_id:
+          type: string
+          maxLength: 255
+        name:
+          type: string
+          maxLength: 255
+        relation:
+          type: string
+          maxLength: 100
+        is_active:
+          type: boolean
+        file:
+          type: string
+          format: uri
+      required:
+      - nominee_pension_id
+    DashboardResponse:
+      type: object
+      properties:
+        total_enrollments:
+          type: integer
+        percentage_change_in_enrollments:
+          type: number
+          format: double
+        total_verifications:
+          type: integer
+        percentage_change_in_verifications:
+          type: number
+          format: double
+        total_failed_verifications:
+          type: integer
+        percentage_change_in_failed_verifications:
+          type: number
+          format: double
+      required:
+      - percentage_change_in_enrollments
+      - percentage_change_in_failed_verifications
+      - percentage_change_in_verifications
+      - total_enrollments
+      - total_failed_verifications
+      - total_verifications
+    DeleteNomineeInput:
+      type: object
+      properties:
+        nominee_id:
+          type: string
+          maxLength: 255
+      required:
+      - nominee_id
+    HealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+        time:
+          type: string
+      required:
+      - status
+      - time
+    MarkDeceasedInput:
+      type: object
+      properties:
+        pension_id:
+          type: string
+          maxLength: 255
+        is_deceased:
+          type: boolean
+      required:
+      - is_deceased
+      - pension_id
+    MetaResponse:
+      type: object
+      properties:
+        debug:
+          type: boolean
+        timezone:
+          type: string
+        api_schema:
+          type: string
+        docs:
+          type: string
+      required:
+      - api_schema
+      - debug
+      - docs
+      - timezone
+    Nominee:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        nominee_pension_id:
+          type: string
+          maxLength: 255
+        name:
+          type: string
+          maxLength: 255
+        relation:
+          type: string
+          maxLength: 100
+        is_active:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - id
+      - name
+      - nominee_pension_id
+      - relation
+      - updated_at
+    NomineeResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        nominee_pension_id:
+          type: string
+          maxLength: 255
+        name:
+          type: string
+          maxLength: 255
+        relation:
+          type: string
+          maxLength: 100
+        is_active:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - id
+      - name
+      - nominee_pension_id
+      - relation
+      - updated_at
+    NomineeVerification:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        nominee:
+          type: integer
+        status:
+          type: string
+          maxLength: 50
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - id
+      - nominee
+      - status
+    PaginatedNomineeResponseList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/NomineeResponse'
+    PaginatedNomineeVerificationList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/NomineeVerification'
+    PaginatedUserList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/User'
+    PaginatedVerificationList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Verification'
+    ParentNomineeListResponse:
+      type: object
+      properties:
+        parent:
+          $ref: '#/components/schemas/ParentUserSummary'
+        nominees:
+          type: array
+          items:
+            $ref: '#/components/schemas/NomineeResponse'
+      required:
+      - nominees
+      - parent
+    ParentUserSummary:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        pension_id:
+          type: string
+          maxLength: 255
+        name:
+          type: string
+          maxLength: 255
+        is_active:
+          type: boolean
+        is_deceased:
+          type: boolean
+      required:
+      - id
+      - name
+      - pension_id
+    PatchedAdminNomineeCreateUpdate:
+      type: object
+      properties:
+        pension_id:
+          type: string
+          description: Pensioner's ID
+          maxLength: 255
+        nominee_pension_id:
+          type: string
+          maxLength: 255
+        name:
+          type: string
+          maxLength: 255
+        relation:
+          type: string
+          maxLength: 100
+        is_active:
+          type: boolean
+        file:
+          type: string
+          format: uri
+    PatchedUserAdminUpdate:
+      type: object
+      description: |-
+        Used for PATCH/PUT on /api-admin/users/{pension_id}/
+        All fields are optional so partial updates are supported.
+      properties:
+        name:
+          type: string
+          maxLength: 255
+        is_active:
+          type: boolean
+        is_deceased:
+          type: boolean
+        file:
+          type: string
+          format: uri
+          description: Optional new face photo. When provided, replaces the stored
+            face encoding.
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        pension_id:
+          type: string
+          maxLength: 255
+        name:
+          type: string
+          maxLength: 255
+        is_active:
+          type: boolean
+        is_deceased:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+        nominees:
+          type: array
+          items:
+            $ref: '#/components/schemas/Nominee'
+          readOnly: true
+      required:
+      - created_at
+      - id
+      - name
+      - nominees
+      - pension_id
+      - updated_at
+    UserAdminUpdate:
+      type: object
+      description: |-
+        Used for PATCH/PUT on /api-admin/users/{pension_id}/
+        All fields are optional so partial updates are supported.
+      properties:
+        name:
+          type: string
+          maxLength: 255
+        is_active:
+          type: boolean
+        is_deceased:
+          type: boolean
+        file:
+          type: string
+          format: uri
+          description: Optional new face photo. When provided, replaces the stored
+            face encoding.
+    UserResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        pension_id:
+          type: string
+          maxLength: 255
+        name:
+          type: string
+          maxLength: 255
+        is_active:
+          type: boolean
+        is_deceased:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - id
+      - name
+      - pension_id
+      - updated_at
+    Verification:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        user:
+          type: integer
+        status:
+          type: string
+          maxLength: 50
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - id
+      - status
+      - user
+    VerificationResponse:
+      type: object
+      properties:
+        status:
+          type: string
+        message:
+          type: string
+        meet_link:
+          type: string
+          nullable: true
+      required:
+      - message
+      - status
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: sessionid
