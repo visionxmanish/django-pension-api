@@ -3,7 +3,8 @@ from .views import (
     RegisterUserView, 
     VerifyUserView, 
     VerifyLivenessVideoView, 
-    UserListView, 
+    UserListView,
+    LatestUsersView,
     UserDetailView, 
     DashboardDataView,
     RegisterNomineeView,
@@ -40,6 +41,7 @@ urlpatterns = [
 
     # Admin APIs
     path('api-admin/users/', UserListView.as_view(), name='user_list'),
+    path('api-admin/users/latest/', LatestUsersView.as_view(), name='latest_users'),
     path('api-admin/users/<str:pension_id>/', UserDetailView.as_view(), name='user_detail'),
     path('api-admin/users/<str:pension_id>/nominees/', AdminUserNomineeListView.as_view(), name='admin_user_nominees'),
     path('api-admin/parents/<str:pension_id>/nominees/', ParentNomineeListView.as_view(), name='admin_parent_nominee_list'),

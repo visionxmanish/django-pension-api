@@ -6,7 +6,7 @@ re-exports the public API view classes referenced by urls.py.
 """
 
 from .admin_users import UserListView, UserDetailView  # noqa: F401
-from .dashboard import DashboardDataView  # noqa: F401
+from .dashboard import DashboardDataView, LatestUsersView  # noqa: F401
 from .health import HealthView, MetaView  # noqa: F401
 from .nominees import (  # noqa: F401
     RegisterNomineeView,

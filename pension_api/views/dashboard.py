@@ -7,9 +7,25 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from drf_spectacular.utils import extend_schema
+from rest_framework import generics, status
 
 from pension_api.models import User, Verification
-from pension_api.serializers import DashboardResponseSerializer
+from pension_api.serializers import DashboardResponseSerializer, UserSerializer
+
+class LatestUsersView(generics.ListAPIView):
+    serializer_class = UserSerializer
+    permission_classes = [AllowAny]
+
+    def get_queryset(self):
+        return User.objects.all().order_by("-created_at")[:5]
+
+    @extend_schema(
+        summary="Get latest 5 users",
+        description="Returns the 5 most recently registered users sorted by creation date.",
+        tags=["Admin Dashboard"],
+    )
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
 
 
 class DashboardDataView(APIView):
